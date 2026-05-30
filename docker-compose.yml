@@ -1,0 +1,39 @@
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: homm3_online
+      POSTGRES_USER: homm3_user
+      POSTGRES_PASSWORD: homm3_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:8-alpine
+    ports:
+      - "6379:6379"
+
+  app:
+    build: .
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: homm3_online
+      DB_USER: homm3_user
+      DB_PASSWORD: homm3_pass
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      - db
+      - redis
+
+volumes:
+  db_data:
